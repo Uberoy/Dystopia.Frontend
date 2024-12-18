@@ -17,7 +17,7 @@ RUN dotnet build "Dystopia.Frontend.csproj" -c Release
 # Stage 2: Publish Dystopia
 FROM build AS publish
 WORKDIR /src
-RUN dotnet publish "Dystopia.Frontend.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Dystopia.Frontend.csproj" -c Release -o /app/publish /p:UseAppHost=false && ls -la /app/publish
 
 # List the contents of the publish directory
 RUN ls -la /app/publish
