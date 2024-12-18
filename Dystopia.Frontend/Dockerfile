@@ -25,6 +25,14 @@ RUN ls -la /app/publish
 # Stage 3: Final runtime image for Dystopia
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
+
+# List contents before copying
+RUN ls -la /app
+
+# Copy from publish stage
 COPY --from=publish /app/publish .
+
+# List contents after copying
+RUN ls -la /app
 
 ENTRYPOINT ["dotnet", "Dystopia.Frontend.dll"]
