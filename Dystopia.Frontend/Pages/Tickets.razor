@@ -45,7 +45,7 @@ else
 
     private async Task<Ticket[]> GetTicketsAsync()
     {
-        var repoUri = "http://localhost:5952";
+        var repoUri = "http://localhost:5000";
         using var httpClient = new HttpClient
         {
             BaseAddress = new Uri(repoUri)
