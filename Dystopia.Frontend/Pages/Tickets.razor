@@ -45,22 +45,25 @@ else
 
     private async Task<Ticket[]> GetTicketsAsync()
     {
-        var repoUri = Environment.GetEnvironmentVariable("REPO_URI") ?? "http://repo:6050";
+        var repoUri = Environment.GetEnvironmentVariable("REPO_URI") ?? "http://localhost:5000";
         using var httpClient = new HttpClient
-            {
-                BaseAddress = new Uri(repoUri)
-            };
+        {
+            BaseAddress = new Uri(repoUri)
+        };
 
         try
         {
+            Console.WriteLine($"Fetching tickets from {repoUri}/tickets?start=0&count=0");
             var response = await httpClient.GetAsync("/tickets?start=0&count=0");
-            response.EnsureSuccessStatusCode(); // Throw if the response is not successful
+            response.EnsureSuccessStatusCode();
 
             var jsonData = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Response JSON: {jsonData}");
+
             return JsonSerializer.Deserialize<Ticket[]>(jsonData, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }) ?? Array.Empty<Ticket>();
+            {
+                PropertyNameCaseInsensitive = true
+            }) ?? Array.Empty<Ticket>();
         }
         catch (Exception ex)
         {
@@ -68,6 +71,7 @@ else
             return Array.Empty<Ticket>();
         }
     }
+
 
     private class Ticket
     {
