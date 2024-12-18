@@ -26,8 +26,8 @@ else
             @foreach (var ticket in tickets)
             {
                 <tr>
-                    <td>@ticket.Name</td>
                     <td>@ticket.UserId</td>
+                    <td>@ticket.Content</td>
                     <td>@ticket.Created.ToString("yyyy-MM-dd")</td>
                 </tr>
             }
@@ -75,8 +75,8 @@ else
 
     private class Ticket
     {
-        public string Name { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
         public DateTime Created { get; set; }
     }
 }
