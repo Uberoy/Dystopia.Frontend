@@ -1,38 +1,22 @@
-# Stage 1: Build all dependencies
+# Stage 1: Build the Blazor WebAssembly app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-
-# Copy the project file
-COPY ["Dystopia.Frontend.csproj", "./"]
-
-# Restore dependencies
-RUN dotnet restore "Dystopia.Frontend.csproj"
-
-# Copy the rest of the solution
-COPY . .
-
-# Build the project
-RUN dotnet build "Dystopia.Frontend.csproj" -c Release
-
-# Stage 2: Publish Dystopia
-FROM build AS publish
-WORKDIR /src
-RUN dotnet publish "Dystopia.Frontend.csproj" -c Release -o /app/publish /p:UseAppHost=false && ls -la /app/publish
-
-# List the contents of the publish directory
-RUN ls -la /app/publish
-
-# Stage 3: Final runtime image for Dystopia
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-# List contents before copying
-RUN ls -la /app
+# Copy the project file and restore dependencies
+COPY Dystopia.Frontend.csproj ./
+RUN dotnet restore
 
-# Copy from publish stage
-COPY --from=publish /app/publish .
+# Copy the rest of the app and build the project
+COPY . ./
+RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
-# List contents after copying
-RUN ls -la /app
+# Stage 2: Serve the app using nginx
+FROM nginx:alpine AS final
+WORKDIR /usr/share/nginx/html
+COPY --from=build /app/publish/wwwroot ./
 
-ENTRYPOINT ["dotnet", "Dystopia.Frontend.dll"]
+# Expose port 80
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
