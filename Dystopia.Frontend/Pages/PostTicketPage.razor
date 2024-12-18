@@ -32,9 +32,9 @@
         {
             newTicket.UserId = userId;
             newTicket.Content = ticketContent;
-            newTicket.Created = DateTime.UtcNow;
+            newTicket.DateCreated = DateTime.UtcNow;
 
-            Console.WriteLine($"Created: {newTicket.Created}");
+            Console.WriteLine($"Created: {newTicket.DateCreated}");
 
             Console.WriteLine($"Posting ticket to {repoUri}/tickets");
 
