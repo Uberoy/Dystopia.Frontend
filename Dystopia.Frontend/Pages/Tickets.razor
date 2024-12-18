@@ -45,7 +45,7 @@ else
 
     private async Task<Ticket[]> GetTicketsAsync()
     {
-        var repoUri = Environment.GetEnvironmentVariable("REPO_URI") ?? "http://localhost:5000";
+        var repoUri = Environment.GetEnvironmentVariable("REPO_URI") ?? "http://localhost:5952";
         using var httpClient = new HttpClient
         {
             BaseAddress = new Uri(repoUri)
