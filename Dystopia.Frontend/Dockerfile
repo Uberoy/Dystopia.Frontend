@@ -13,6 +13,14 @@ RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 # Stage 2: Serve the app using nginx
 FROM nginx:alpine AS final
 WORKDIR /usr/share/nginx/html
+
+# Install tzdata to configure the timezone
+RUN apk add --no-cache tzdata
+
+# Set the timezone
+ENV TZ=Etc/UTC
+
+# Copy the app from the build stage
 COPY --from=build /app/publish/wwwroot ./
 
 # Expose port 80
