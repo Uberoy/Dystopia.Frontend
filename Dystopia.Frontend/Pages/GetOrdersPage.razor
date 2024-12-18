@@ -1,0 +1,75 @@
+﻿@page "/getorderspage"
+@using System.Text.Json
+@using Dystopia.Frontend.Entities
+@attribute [StreamRendering]
+
+<PageTitle>GetOrdersPage</PageTitle>
+
+<h1>GetOrdersPage</h1>
+
+<p>This component demonstrates showing data.</p>
+
+@if (orders == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Content</th>
+                <th>Created date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.UserId</td>
+                    <td>@order.Content</td>
+                    <td>@order.DateCreated.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Order[]? orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        orders = await GetOrdersAsync();
+    }
+
+    private async Task<Order[]> GetOrdersAsync()
+    {
+        var repoUri = "http://localhost:5000";
+        using var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(repoUri)
+            };
+
+        try
+        {
+            Console.WriteLine($"Fetching orders from {repoUri}/orders?start=0&count=0");
+            var response = await httpClient.GetAsync("/orders?start=0&count=0");
+            response.EnsureSuccessStatusCode();
+
+            var jsonData = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Response JSON: {jsonData}");
+
+            return JsonSerializer.Deserialize<Order[]>(jsonData, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? Array.Empty<Order>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching orders: {ex.Message}");
+            return Array.Empty<Order>();
+        }
+    }
+}

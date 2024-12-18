@@ -1,0 +1,75 @@
+﻿@page "/getcustomerspage"
+@using System.Text.Json
+@using Dystopia.Frontend.Entities
+@attribute [StreamRendering]
+
+<PageTitle>GetCustomersPage</PageTitle>
+
+<h1>GetCustomersPage</h1>
+
+<p>This component demonstrates showing data.</p>
+
+@if (customers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Content</th>
+                <th>Created date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in customers)
+            {
+                <tr>
+                    <td>@customer.UserId</td>
+                    <td>@customer.Content</td>
+                    <td>@customer.DateCreated.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Customer[]? customers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await GetCustomersAsync();
+    }
+
+    private async Task<Customer[]> GetCustomersAsync()
+    {
+        var repoUri = "http://localhost:5000";
+        using var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(repoUri)
+            };
+
+        try
+        {
+            Console.WriteLine($"Fetching customers from {repoUri}/customers?start=0&count=0");
+            var response = await httpClient.GetAsync("/customers?start=0&count=0");
+            response.EnsureSuccessStatusCode();
+
+            var jsonData = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Response JSON: {jsonData}");
+
+            return JsonSerializer.Deserialize<Customer[]>(jsonData, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? Array.Empty<Customer>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching customers: {ex.Message}");
+            return Array.Empty<Customer>();
+        }
+    }
+}
