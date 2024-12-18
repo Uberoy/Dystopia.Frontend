@@ -34,9 +34,13 @@
             newTicket.Content = ticketContent;
             newTicket.Created = DateTime.UtcNow;
 
+            Console.WriteLine($"Created: {newTicket.Created}");
+
             Console.WriteLine($"Posting ticket to {repoUri}/tickets");
 
             var json = JsonSerializer.Serialize(newTicket);
+
+            Console.WriteLine($"Serialized JSON: {json}");
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
