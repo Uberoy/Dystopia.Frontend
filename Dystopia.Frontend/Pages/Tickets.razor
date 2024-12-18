@@ -1,0 +1,78 @@
+﻿@page "/tickets"
+@using System.Text.Json
+@attribute [StreamRendering]
+
+<PageTitle>Tickets</PageTitle>
+
+<h1>Tickets</h1>
+
+<p>This component demonstrates showing data.</p>
+
+@if (tickets == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Content</th>
+                <th>Created date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in tickets)
+            {
+                <tr>
+                    <td>@ticket.Name</td>
+                    <td>@ticket.Content</td>
+                    <td>@ticket.Created.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Ticket[]? tickets;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tickets = await GetTicketsAsync();
+    }
+
+    private async Task<Ticket[]> GetTicketsAsync()
+    {
+        var repoUri = Environment.GetEnvironmentVariable("REPO_URI") ?? "http://repo:6050";
+        using var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(repoUri)
+            };
+
+        try
+        {
+            var response = await httpClient.GetAsync("/tickets?start=0&count=0");
+            response.EnsureSuccessStatusCode(); // Throw if the response is not successful
+
+            var jsonData = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<Ticket[]>(jsonData, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? Array.Empty<Ticket>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching tickets: {ex.Message}");
+            return Array.Empty<Ticket>();
+        }
+    }
+
+    private class Ticket
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public DateTime Created { get; set; }
+    }
+}
