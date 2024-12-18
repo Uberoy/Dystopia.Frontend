@@ -1,10 +1,11 @@
-﻿@page "/tickets"
+﻿@page "/getticketspage"
 @using System.Text.Json
+@using Dystopia.Frontend.Entities
 @attribute [StreamRendering]
 
-<PageTitle>Tickets</PageTitle>
+<PageTitle>GetTicketsPage</PageTitle>
 
-<h1>Tickets</h1>
+<h1>GetTicketsPage</h1>
 
 <p>This component demonstrates showing data.</p>
 
@@ -70,13 +71,5 @@ else
             Console.WriteLine($"Error fetching tickets: {ex.Message}");
             return Array.Empty<Ticket>();
         }
-    }
-
-
-    private class Ticket
-    {
-        public string UserId { get; set; } = string.Empty;
-        public string Content { get; set; } = string.Empty;
-        public DateTime Created { get; set; }
     }
 }

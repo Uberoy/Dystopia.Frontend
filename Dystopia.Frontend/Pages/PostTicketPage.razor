@@ -1,0 +1,61 @@
+﻿@page "/postticketpage"
+@using System.Text
+@using System.Text.Json
+@using Dystopia.Frontend.Entities
+
+<PageTitle>PostTicketPage</PageTitle>
+
+<h3>Post a Ticket</h3>
+
+<label>User ID:</label>
+<InputText @bind-Value="userId" placeholder="Enter user ID" />
+
+<label>Content:</label>
+<InputText @bind-Value="ticketContent" placeholder="Enter content" />
+
+<button @onclick="PostTicket">Submit Ticket</button>
+
+@code {
+    private string userId = string.Empty;
+    private string ticketContent = string.Empty;
+    private Ticket newTicket = new Ticket();
+
+    private async Task PostTicket()
+    {
+        var repoUri = "http://localhost:5000";
+        using var httpClient = new HttpClient
+        {
+            BaseAddress = new Uri(repoUri)
+        };
+
+        try
+        {
+            newTicket.UserId = userId;
+            newTicket.Content = ticketContent;
+            newTicket.Created = DateTime.Now;
+
+            Console.WriteLine($"Posting ticket to {repoUri}/tickets");
+
+            var json = JsonSerializer.Serialize(newTicket);
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync("/tickets", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Ticket posted successfully!");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to post ticket. Status code: {response.StatusCode}");
+                var responseBody = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Response body: {responseBody}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error posting ticket: {ex.Message}");
+        }
+    }
+}
